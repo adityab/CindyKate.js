@@ -1,0 +1,57 @@
+<!DOCTYPE>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CindyKate - Unhosted Read-it-Later</title>
+  </head>
+  <body>
+    <p>
+      Please connect your remote storage.
+    </p>
+    <a id = "bookmarklet">Drag this bookmarklet to your toolbar.</a>
+  </body>
+  <script src="remotestorage.js"></script>
+  <script src="connect.js"></script>
+  <script src="articles.js"></script>
+  <script>
+    function buildScript(userAddress, href, storageApi, token) {
+        var xhr = new XMLHttpRequest(),
+            script = "(function () {";
+
+        xhr.open('GET', "remotestorage.js", false);
+        xhr.send();
+        script += xhr.responseText;
+        xhr.open('GET', "connect.js", false);
+        xhr.send();
+        script += xhr.responseText;
+        xhr.open('GET', "articles.js", false);
+        xhr.send();
+        script += xhr.responseText;
+        xhr.open('GET', "parser.js", false);
+        xhr.send();
+        script += xhr.responseText;
+
+        script += "remoteStorage.remote.configure("
+            + "'"
+            + [userAddress, href, storageApi, token].join("', '")
+            + "');";
+
+        script += "})();";
+
+        script = "javascript:" + encodeURIComponent(script);
+
+        return script;
+    }
+    remoteStorage.displayWidget();
+    remoteStorage.on('connected', function () {
+        var script = buildScript(
+                remoteStorage.remote.userAddress,
+                remoteStorage.remote.href,
+                remoteStorage.remote.storageApi,
+                remoteStorage.remote.token
+            ),
+            bookmarklet = document.getElementById('bookmarklet');
+        bookmarklet.href = script;
+    });
+  </script>
+</html>
